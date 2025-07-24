@@ -33,6 +33,7 @@ public class App {
             SwingUtilities.invokeLater(() -> {
                 GUI gui = new GUI(player);
                 gui.show();
+                player.pause();
             });
             player.play(currentSong);
 
