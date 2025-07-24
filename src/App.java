@@ -6,6 +6,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import controller.JPlayer;
 import model.*;
 import java.util.List;
+import ui.GUI;
+import javax.swing.SwingUtilities;
 
 public class App {
     public static void main(String[] args) throws Exception {
@@ -26,6 +28,15 @@ public class App {
          player.play(currentSong);
          //player.pause();
          //top();
+
+        //line for interface
+            SwingUtilities.invokeLater(() -> {
+                GUI gui = new GUI(player);
+                gui.show();
+                player.pause();
+            });
+            player.play(currentSong);
+
       } catch (Exception e) {
          e.printStackTrace();
       }
