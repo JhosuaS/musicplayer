@@ -12,7 +12,7 @@ public class GUI {
     private JFrame frame;
     private JLabel songInfoLabel;
     private JList<String> songList;
-    private String[][] cancionesReales;
+    private String[][] realSongs;
     private JButton playButton, volumeUpButton, volumeDownButton;
     private JButton repeatButton, nextButton, prevButton;
     private CardLayout cardLayout;
@@ -25,12 +25,12 @@ public class GUI {
 
     public GUI(JPlayer player) {
         this.player = player;
-        this.cancionesReales = obtenerCanciones();
+        this.realSongs = getSongs();
         initialize();
     }
 
     private void initialize() {
-        frame = new JFrame("Reproductor de Música");
+        frame = new JFrame("Music Player");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(800, 600);
 
@@ -51,14 +51,14 @@ public class GUI {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        JLabel titleLabel = new JLabel("Lista de Canciones", SwingConstants.CENTER);
+        JLabel titleLabel = new JLabel("Song List", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
         panel.add(titleLabel, BorderLayout.NORTH);
 
-        String[] nombresCanciones = Arrays.stream(cancionesReales)
-                                        .map(c -> c[0])
-                                        .toArray(String[]::new);
-        songList = new JList<>(nombresCanciones);
+        String[] songNames = Arrays.stream(realSongs)
+                                .map(c -> c[0])
+                                .toArray(String[]::new);
+        songList = new JList<>(songNames);
         songList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         songList.setFont(new Font("Arial", Font.PLAIN, 18));
         songList.setSelectedIndex(0);
@@ -87,22 +87,23 @@ public class GUI {
         panel.add(topPanel, BorderLayout.NORTH);
 
         JPanel bottomPanel = new JPanel(new BorderLayout());
-        JButton backButton = new JButton("← Volver a la lista");
-        backButton.setFont(new Font("Arial", Font.PLAIN, 14));
+        JButton backButton = new JButton("← Back to list");
+        backButton.setFont(new Font("Arial", Font.PLAIN, 20));
         bottomPanel.add(backButton, BorderLayout.WEST);
+        backButton.addActionListener(e -> cardLayout.show(cardPanel, "main"));
         bottomPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 20, 20));
-        bottomPanel.setPreferredSize(new Dimension(frame.getWidth(), 50));
-        panel.add(bottomPanel, BorderLayout.SOUTH);
+        bottomPanel.setPreferredSize(new Dimension(frame.getWidth(), 70));
+        
 
         JPanel controlsPanel = new JPanel(new GridLayout(3, 3, 15, 15));
         controlsPanel.setBorder(BorderFactory.createEmptyBorder(20, 50, 20, 50));
 
-        prevButton = new JButton("⏮");
+        prevButton = new JButton("⏮PrevButton");
         playButton = new JButton("▶");
-        nextButton = new JButton("⏭");
-        repeatButton = new JButton("🔁");
-        volumeDownButton = new JButton("🔉");
-        volumeUpButton = new JButton("🔊");
+        nextButton = new JButton("⏭NextButton");
+        repeatButton = new JButton("🔁RepeatButton");
+        volumeDownButton = new JButton("🔉DownVolume");
+        volumeUpButton = new JButton("🔊UpVolume");
 
         Font buttonFont = new Font("Arial", Font.PLAIN, 16);
         Dimension buttonSize = new Dimension(120, 40);
@@ -112,7 +113,7 @@ public class GUI {
             button.setPreferredSize(buttonSize);
         });
 
-        configurarBotones();
+        configureButtons();
 
         volumeSlider = new JSlider(0, 100, (int)(player.getCurrentVolume() * 100));
         volumeSlider.setPreferredSize(new Dimension(120, 20));
@@ -139,20 +140,27 @@ public class GUI {
         controlsPanel.add(new JLabel());
 
         volumeUpButton.addActionListener(e -> {
+            volumeUpButton.setEnabled(false);
             player.volumeUp();
             volumeSlider.setValue((int)(player.getCurrentVolume() * 100));
+            new Timer(300, evt -> volumeUpButton.setEnabled(true)).start();
         });
 
         volumeDownButton.addActionListener(e -> {
+            volumeDownButton.setEnabled(false);
             player.volumeDown();
             volumeSlider.setValue((int)(player.getCurrentVolume() * 100));
+            new Timer(300, evt -> volumeDownButton.setEnabled(true)).start();
         });
 
         JPanel controlsWrapper = new JPanel(new BorderLayout());
         controlsWrapper.add(controlsPanel, BorderLayout.NORTH);
         controlsWrapper.setBorder(BorderFactory.createEmptyBorder(0, 0, 50, 0));
 
-        panel.add(controlsWrapper, BorderLayout.SOUTH);
+        JPanel bottomWrapper = new JPanel(new BorderLayout());
+        bottomWrapper.add(controlsWrapper, BorderLayout.NORTH);
+        bottomWrapper.add(bottomPanel, BorderLayout.SOUTH);
+        panel.add(bottomWrapper, BorderLayout.SOUTH);
 
         progressBar = new JProgressBar();
         progressBar.setForeground(new Color(0, 150, 255));
@@ -168,7 +176,8 @@ public class GUI {
         return panel;
     }
 
-    private void configurarBotones() {
+    private void configureButtons() {
+        
         playButton.addActionListener(e -> togglePlayPause());
         
         nextButton.addActionListener(e -> {
@@ -195,7 +204,7 @@ public class GUI {
     private void togglePlayPause() {
         if (player.isPlaying()) {
             player.pause();
-            playButton.setText("▶ Reproducir");
+            playButton.setText("▶ Play");
             progressTimer.stop();
         } else {
             playSelectedSong();
@@ -204,11 +213,11 @@ public class GUI {
 
     private void playSelectedSong() {
         int selectedIndex = songList.getSelectedIndex();
-        Song selectedSong = crearSongDesdeDatos(selectedIndex);
+        Song selectedSong = createSongFromData(selectedIndex);
         
         player.play(selectedSong);
-        playButton.setText("⏸ Pausa");
-        songInfoLabel.setText("Reproduciendo: " + selectedSong.getTitle());
+        playButton.setText("⏸ Pause");
+        songInfoLabel.setText("Now playing: " + selectedSong.getTitle());
         
         progressTimer.start();
     }
@@ -230,19 +239,19 @@ public class GUI {
         });
     }
 
-    private Song crearSongDesdeDatos(int index) {
+    private Song createSongFromData(int index) {
         return new Song(
-            cancionesReales[index][0],
+            realSongs[index][0],
             0,
-            cancionesReales[index][1]
+            realSongs[index][1]
         );
     }
 
-    private String[][] obtenerCanciones() {
+    private String[][] getSongs() {
         return new String[][] {
-            {"Canción 1", "C:/Users/cancion1.mp3"},
-            {"Canción 2", "C:/Users/cancion2.mp3"},
-            {"Canción 3", "C:/Users/everlong.mp3"}
+            {"Song 1", "C:/Users/song1.mp3"},
+            {"Song 2", "C:/Users/song2.mp3"},
+            {"Song 3", "C:/Users/everlong.mp3"}
         };
     }
 

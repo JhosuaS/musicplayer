@@ -44,7 +44,7 @@ public class JPlayer {
 
     public void toggleShuffle() {
         shuffleMode = !shuffleMode;
-        System.out.println("Modo aleatorio " + (shuffleMode ? "activado" : "desactivado"));
+        System.out.println("Shuffle mode " + (shuffleMode ? "enabled" : "disabled"));
     }
 
     public boolean isShuffleMode() {
@@ -70,7 +70,7 @@ public class JPlayer {
 
     public void play(Song song) {
         if (song == null || song.getPath() == null) {
-            System.err.println("Canción o ruta no válida");
+            System.err.println("Invalid song or path");
             return;
         }
 
@@ -92,7 +92,7 @@ public class JPlayer {
 
             playbackThread = new Thread(() -> {
                 try {
-                    System.out.println("Reproduciendo: " + song.getTitle());
+                    System.out.println("Playing: " + song.getTitle());
                     while (!isStopped.get()) {
                         if (!isPaused.get()) {
                             if (!playerMP3.play(1)) {
@@ -110,7 +110,7 @@ public class JPlayer {
                     }
                 } catch (Exception e) {
                     if (!isStopped.get()) {
-                        System.err.println("Error en reproducción: " + e.getMessage());
+                        System.err.println("Playback error: " + e.getMessage());
                     }
                 } finally {
                     closeResources();
@@ -120,14 +120,14 @@ public class JPlayer {
             playbackThread.start();
 
         } catch (Exception e) {
-            System.err.println("Error al iniciar reproducción: " + e.getMessage());
+            System.err.println("Error starting playback: " + e.getMessage());
             closeResources();
         }
     }
 
     public void next() {
         if (songList == null || songList.isEmpty()) {
-            System.out.println("No hay lista de canciones disponible");
+            System.out.println("No song list available");
             return;
         }
 
@@ -143,9 +143,9 @@ public class JPlayer {
         }
     }
 
-    public void back() {
+    public void previous() {
         if (songList == null || songList.isEmpty()) {
-            System.out.println("No hay lista de canciones disponible");
+            System.out.println("No song list available");
             return;
         }
 
@@ -177,7 +177,7 @@ public class JPlayer {
 
             playbackThread = new Thread(() -> {
                 try {
-                    System.out.println("Reanudando: " + currentSong.getTitle());
+                    System.out.println("Resuming: " + currentSong.getTitle());
                     while (!isStopped.get()) {
                         if (!isPaused.get()) {
                             if (!playerMP3.play(1)) {
@@ -189,7 +189,7 @@ public class JPlayer {
                     }
                 } catch (Exception e) {
                     if (!isStopped.get()) {
-                        System.err.println("Error en reproducción: " + e.getMessage());
+                        System.err.println("Playback error: " + e.getMessage());
                     }
                 } finally {
                     closeResources();
@@ -197,10 +197,10 @@ public class JPlayer {
             });
 
             playbackThread.start();
-            System.out.println("Control de volumen inicializado");
+            System.out.println("Volume control initialized");
 
         } catch (Exception e) {
-            System.err.println("Error al reanudar reproducción: " + e.getMessage());
+            System.err.println("Error resuming playback: " + e.getMessage());
             closeResources();
         }
     }
@@ -211,9 +211,9 @@ public class JPlayer {
                 pausePosition = playerMP3.getPosition();
                 isPaused.set(true);
                 shouldResume = true;
-                System.out.println("Pausado");
+                System.out.println("Paused");
             } catch (Exception e) {
-                System.err.println("Error al pausar: " + e.getMessage());
+                System.err.println("Error pausing: " + e.getMessage());
             }
         }
     }
@@ -230,15 +230,15 @@ public class JPlayer {
         if (volume > 1f) volume = 1f;
         
         currentVolume = volume;
-        System.out.println("Volumen ajustado a: " + (int)(volume * 100) + "%");
+        System.out.println("Volume set to: " + (int)(volume * 100) + "%");
     }
 
     public void volumeUp() {
-        setVolume(currentVolume + 0.1f);
+        setVolume(Math.round((currentVolume + 0.1f) * 10) / 10.0f); 
     }
 
     public void volumeDown() {
-        setVolume(currentVolume - 0.1f);
+        setVolume(Math.round((currentVolume - 0.1f) * 10) / 10.0f); 
     }
 
     public void repeat() {
@@ -258,7 +258,7 @@ public class JPlayer {
                 currentStream = null;
             }
         } catch (Exception e) {
-            System.err.println("Error al cerrar recursos: " + e.getMessage());
+            System.err.println("Error closing resources: " + e.getMessage());
         }
     }
 
