@@ -1,6 +1,7 @@
 package model;
 
 public class Song {
+    private int id;
     private String title;
     private float duration;
     private float currentPlayTime;
@@ -8,13 +9,20 @@ public class Song {
 
     public Song () {}
 
-    public Song(String title, float duration, String path) {
+    public Song(int id, String title, float duration, String path) {
+        this.id = id;
         this.title = title;
         this.duration = duration;
         this.currentPlayTime = 0f;
         this.path = path;
     }
 
+    public int getId() {
+        return id;
+    }
+    public void setId(int id) {
+        this.id = id;
+    }
     public String getTitle() {
         return title;
     }

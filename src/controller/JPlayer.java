@@ -15,7 +15,6 @@ public class JPlayer {
     private float currentVolume = 0.8f;
     private Song currentSong;
     private InputStream currentStream;
-    private long pausePosition;
     private boolean shouldResume;
     private List<Song> songList;
     private boolean shuffleMode = false;
@@ -74,11 +73,6 @@ public class JPlayer {
             return;
         }
 
-        if (shouldResume && song.equals(currentSong)) {
-            resume();
-            return;
-        }
-
         stop();
         shouldResume = false;
 
@@ -90,30 +84,33 @@ public class JPlayer {
             isStopped.set(false);
             isPaused.set(false);
 
-            playbackThread = new Thread(() -> {
-                try {
-                    System.out.println("Playing: " + song.getTitle());
-                    while (!isStopped.get()) {
-                        if (!isPaused.get()) {
-                            if (!playerMP3.play(1)) {
-                                if (shuffleMode && songList != null && !songList.isEmpty()) {
-                                    play(getRandomSong());
+            playbackThread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        System.out.println("Playing: " + song.getTitle());
+                        while (!isStopped.get()) {
+                            if (!isPaused.get()) {
+                                if (playerMP3 == null || !playerMP3.play(1)) {
+                                    if (shuffleMode && songList != null && !songList.isEmpty()) {
+                                        play(getRandomSong());
+                                    }
+                                    break;
                                 }
-                                break;
+                                if (currentSong != null && playerMP3 != null) {
+                                    currentSong.setCurrentPlayTime(playerMP3.getPosition() / 1000f);
+                                }
+                            } else {
+                                Thread.sleep(100);
                             }
-                            if (currentSong != null) {
-                                currentSong.setCurrentPlayTime(playerMP3.getPosition() / 1000f);
-                            }
-                        } else {
-                            Thread.sleep(100);
                         }
+                    } catch (Exception e) {
+                        if (!isStopped.get()) {
+                            System.err.println("Playback error: " + e.getMessage());
+                        }
+                    } finally {
+                        closeResources();
                     }
-                } catch (Exception e) {
-                    if (!isStopped.get()) {
-                        System.err.println("Playback error: " + e.getMessage());
-                    }
-                } finally {
-                    closeResources();
                 }
             });
 
@@ -162,59 +159,17 @@ public class JPlayer {
     }
 
     private void resume() {
-        try {
-            currentStream = new BufferedInputStream(new FileInputStream(currentSong.getPath()));
-            playerMP3 = new Player(currentStream);
-            
-            long toSkip = pausePosition;
-            while (toSkip > 0) {
-                toSkip -= currentStream.skip(toSkip);
-            }
-
-            isStopped.set(false);
-            isPaused.set(false);
-            shouldResume = false;
-
-            playbackThread = new Thread(() -> {
-                try {
-                    System.out.println("Resuming: " + currentSong.getTitle());
-                    while (!isStopped.get()) {
-                        if (!isPaused.get()) {
-                            if (!playerMP3.play(1)) {
-                                break;
-                            }
-                        } else {
-                            Thread.sleep(100);
-                        }
-                    }
-                } catch (Exception e) {
-                    if (!isStopped.get()) {
-                        System.err.println("Playback error: " + e.getMessage());
-                    }
-                } finally {
-                    closeResources();
-                }
-            });
-
-            playbackThread.start();
-            System.out.println("Volume control initialized");
-
-        } catch (Exception e) {
-            System.err.println("Error resuming playback: " + e.getMessage());
-            closeResources();
+        if (currentSong != null) {
+            play(currentSong);
+            System.out.println("Resuming from the start: " + currentSong.getTitle()); 
         }
     }
 
     public void pause() {
         if (playerMP3 != null && !isStopped.get() && !isPaused.get()) {
-            try {
-                pausePosition = playerMP3.getPosition();
-                isPaused.set(true);
-                shouldResume = true;
-                System.out.println("Paused");
-            } catch (Exception e) {
-                System.err.println("Error pausing: " + e.getMessage());
-            }
+            isPaused.set(true);
+            shouldResume = true;
+            System.out.println("Paused");
         }
     }
 
