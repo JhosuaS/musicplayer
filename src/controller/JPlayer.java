@@ -18,7 +18,6 @@ public class JPlayer {
     private float currentVolume = 0.8f;
     private Song currentSong;
     private InputStream currentStream;
-    private boolean shouldResume;
     private List<Song> songList;
     private int framesPlayed = 0;  
     private final int MS_PER_FRAME = 26;  
@@ -48,7 +47,7 @@ public class JPlayer {
         }
 
         stop();
-        shouldResume = false;
+        currentSong = song;
 
         try {
             currentSong = song;
@@ -139,25 +138,23 @@ public class JPlayer {
         }
     }
 
-    private void resume() {
-        if (currentSong != null) {
-            play(currentSong);
-            System.out.println("Resuming from the start: " + currentSong.getTitle()); 
-        }
-    }
-
     public void pause() {
         if (playerMP3 != null && !isStopped.get() && !isPaused.get()) {
             isPaused.set(true);
-            shouldResume = true;
-            System.out.println("Paused");
+            System.out.println("Standing");
         }
     }
 
     public void stop() {
         isStopped.set(true);
         isPaused.set(false);
-        shouldResume = false;
+        try {
+            if (playbackThread != null && playbackThread.isAlive()) {
+                playbackThread.join(); 
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         closeResources();
     }
 
