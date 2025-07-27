@@ -92,7 +92,7 @@ public class GUI {
             }
         });
 
-        panel.add(new JLabel("Todas las canciones", SwingConstants.CENTER), BorderLayout.NORTH);
+        panel.add(new JLabel("All the songs", SwingConstants.CENTER), BorderLayout.NORTH);
         panel.add(allSongsScroll, BorderLayout.CENTER);
 
         return panel;
@@ -256,9 +256,13 @@ public class GUI {
     private void togglePlayPause() {
         if (player.isPlaying()) {
             player.pause();
-            playButton.setText("▶ Play");
+            playButton.setText("▶ Restart");
             progressTimer.stop();
-        } else {
+        } else if (player.isPaused()) {
+            player.stop();
+            playSelectedSong();
+        }
+        else {
             playSelectedSong();
         }
     }
