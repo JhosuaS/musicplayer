@@ -278,8 +278,7 @@ public class GUI {
         progressTimer = new Timer(500, e -> {
             if (player.isPlaying()) {
                 long position = player.getCurrentPosition();
-                long duration = player.getDuration();
-                
+                long duration = player.getDuration();                
                 progressBar.setMaximum((int)duration);
                 progressBar.setValue((int)position);
                 
