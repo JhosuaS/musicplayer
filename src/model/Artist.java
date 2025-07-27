@@ -1,28 +1,24 @@
 package model;
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
-@JsonTypeInfo(
-  use = JsonTypeInfo.Id.NAME,
-  include = JsonTypeInfo.As.PROPERTY,
-  property = "type"
-)
-@JsonSubTypes({
-  @JsonSubTypes.Type(value = Singer.class, name = "Singer"),
-  @JsonSubTypes.Type(value = Writer.class, name = "Writer"),
-  @JsonSubTypes.Type(value = Composer.class, name = "Composer")
-})
-
 public abstract class Artist {
     private String name;
 
+    /**
+     * Default constructor for Artist, builds an empty Artist.
+     */
     public Artist() {}
 
+    /**
+     * Constructor for Artist, builds an Artist with a given name.  
+     * @param name
+     */
     public Artist(String name) {
         this.name = name;
     }
     
+    /**
+     Getters and Setters for Artist
+     */
     public String getName() {
         return name;
     }

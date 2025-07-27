@@ -7,6 +7,11 @@ import java.util.*;
 public class SongDAO {
     private final String dbPath = "jdbc:sqlite:src/data/music.db";
 
+    /**
+     * Retrieves all songs from the database.
+     * @throws SQLException
+     * @return A list of all songs.
+     */
     public List<Song> getAllSongs() {
         List<Song> songs = new ArrayList<>();
         try (Connection connection = DriverManager.getConnection(dbPath);
