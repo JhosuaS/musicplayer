@@ -4,8 +4,11 @@ import model.*;
 import javazoom.jl.player.Player;
 import java.io.*;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
+import javazoom.spi.mpeg.sampled.file.MpegAudioFileReader;
+import javax.sound.sampled.AudioFileFormat;
+import java.util.Map;
+
 
 public class JPlayer {
     private Player playerMP3;
@@ -17,19 +20,16 @@ public class JPlayer {
     private InputStream currentStream;
     private boolean shouldResume;
     private List<Song> songList;
-    private boolean shuffleMode = false;
-    private Random random = new Random();
+    private int framesPlayed = 0;  
+    private final int MS_PER_FRAME = 26;  
+
 
     public float getCurrentVolume() {
         return currentVolume;
     }
 
     public long getCurrentPosition() {
-        try {
-            return playerMP3 != null ? playerMP3.getPosition() : 0;
-        } catch (Exception e) {
-            return 0;
-        }
+        return framesPlayed * MS_PER_FRAME;
     }
 
     public long getDuration() {
@@ -39,32 +39,6 @@ public class JPlayer {
 
     public void setSongList(List<Song> songs) {
         this.songList = songs;
-    }
-
-    public void toggleShuffle() {
-        shuffleMode = !shuffleMode;
-        System.out.println("Shuffle mode " + (shuffleMode ? "enabled" : "disabled"));
-    }
-
-    public boolean isShuffleMode() {
-        return shuffleMode;
-    }
-
-    private Song getRandomSong() {
-        if (songList == null || songList.isEmpty()) {
-            return null;
-        }
-        
-        if (songList.size() == 1) {
-            return songList.get(0);
-        }
-        
-        Song randomSong;
-        do {
-            randomSong = songList.get(random.nextInt(songList.size()));
-        } while (randomSong.equals(currentSong) && songList.size() > 1);
-        
-        return randomSong;
     }
 
     public void play(Song song) {
@@ -79,6 +53,9 @@ public class JPlayer {
         try {
             currentSong = song;
             currentSong.setCurrentPlayTime(0);
+            long duration = getDurationFromFile(new File(song.getPath()));
+            song.setDuration(duration / 1000f); 
+            framesPlayed = 0;
             currentStream = new BufferedInputStream(new FileInputStream(song.getPath()));
             playerMP3 = new Player(currentStream);
             isStopped.set(false);
@@ -92,13 +69,12 @@ public class JPlayer {
                         while (!isStopped.get()) {
                             if (!isPaused.get()) {
                                 if (playerMP3 == null || !playerMP3.play(1)) {
-                                    if (shuffleMode && songList != null && !songList.isEmpty()) {
-                                        play(getRandomSong());
-                                    }
                                     break;
-                                }
-                                if (currentSong != null && playerMP3 != null) {
-                                    currentSong.setCurrentPlayTime(playerMP3.getPosition() / 1000f);
+                                } else {
+                                    framesPlayed++;
+                                    if (currentSong != null) {
+                                        currentSong.setCurrentPlayTime(framesPlayed * MS_PER_FRAME / 1000f);
+                                    }
                                 }
                             } else {
                                 Thread.sleep(100);
@@ -127,16 +103,11 @@ public class JPlayer {
             System.out.println("No song list available");
             return;
         }
-
-        if (shuffleMode) {
-            play(getRandomSong());
+        int currentIndex = songList.indexOf(currentSong);
+        if (currentIndex < songList.size() - 1) {
+            play(songList.get(currentIndex + 1));
         } else {
-            int currentIndex = songList.indexOf(currentSong);
-            if (currentIndex < songList.size() - 1) {
-                play(songList.get(currentIndex + 1));
-            } else {
-                play(songList.get(0));
-            }
+            play(songList.get(0));
         }
     }
 
@@ -146,15 +117,25 @@ public class JPlayer {
             return;
         }
 
-        if (shuffleMode) {
-            play(getRandomSong());
+        int currentIndex = songList.indexOf(currentSong);
+        if (currentIndex > 0) {
+            play(songList.get(currentIndex - 1));
         } else {
-            int currentIndex = songList.indexOf(currentSong);
-            if (currentIndex > 0) {
-                play(songList.get(currentIndex - 1));
-            } else {
-                play(songList.get(songList.size() - 1));
-            }
+            play(songList.get(songList.size() - 1));
+        }
+    
+    }
+
+    public long getDurationFromFile(File file) {
+        try {
+            MpegAudioFileReader reader = new MpegAudioFileReader();
+            AudioFileFormat format = reader.getAudioFileFormat(file);
+            Map<?, ?> props = format.properties();
+            Long durationMicroseconds = (Long) props.get("duration");
+            return durationMicroseconds / 1000; 
+        } catch (Exception e) {
+            System.err.println("Could not read file duration: " + e.getMessage());
+            return 0;
         }
     }
 
