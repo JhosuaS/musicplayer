@@ -10,6 +10,12 @@ import java.util.List;
 public class PlaylistDAO {
     private final String dbPath = "jdbc:sqlite:src/data/music.db";
 
+    /**
+     * Creates a new playlist in the database.
+     * @param name
+     * @return The ID of the created playlist, or -1 if creation failed.
+     * @throws SQLException
+     */
     public int createPlaylist(String name) {
         String sql = "INSERT INTO playlist (name) VALUES (?)";
         try (Connection connection = DriverManager.getConnection(dbPath);
@@ -24,6 +30,12 @@ public class PlaylistDAO {
         return -1;
     }
 
+    /**
+     * Adds a song to a playlist in the database.
+     * @param playlistId
+     * @param songId
+     * @throws SQLException
+     */
     public void addSongToPlaylist(int playlistId, int songId) {
         String sql = "INSERT OR IGNORE INTO playlist_song (playlist_id, song_id) VALUES (?, ?)";
         try (Connection conn = DriverManager.getConnection(dbPath);
@@ -36,6 +48,12 @@ public class PlaylistDAO {
         }
     }
 
+    /**
+     * Removes a song from a playlist in the database.
+     * @param playlistId
+     * @param songId
+     * @throws SQLException
+     */
     public void removeSongFromPlaylist(int playlistId, int songId){
         String sql = "DELETE FROM playlist_song WHERE playlist_id = ? AND song_id = ?";
         try (Connection conn = DriverManager.getConnection(dbPath);
@@ -48,6 +66,11 @@ public class PlaylistDAO {
         }
     }
 
+    /**
+     * Retrieves all playlists from the database.
+     * @return A list of all playlists.
+     * @throws SQLException
+     */
     public List<Playlist> getAllPlaylists() {
         List<Playlist> playlists = new ArrayList<>();
         String sql = "SELECT * FROM playlist";
@@ -63,6 +86,12 @@ public class PlaylistDAO {
         return playlists;
     }
 
+    /**
+     * Retrieves all songs from a specific playlist.
+     * @param playlistId
+     * @return A list of songs in the specified playlist.
+     * @throws SQLException
+     */
     public List<Song> getSongsFromPlaylist(int playlistId) {
         List<Song> songs = new ArrayList<>();
         String sql = """
@@ -89,6 +118,11 @@ public class PlaylistDAO {
         return songs;
     }
 
+    /**
+     * Gets the next available playlist number based on the current count of playlists.
+     * @return The next playlist number, returns 1 if no playlists exist.
+     * @throws SQLException
+     */
     public int getNextPlaylistNumber() {
         String sql = "SELECT COUNT(*) AS count FROM playlist";
         try (Connection conn = DriverManager.getConnection(dbPath);

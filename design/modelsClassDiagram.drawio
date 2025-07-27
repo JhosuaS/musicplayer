@@ -1,11 +1,11 @@
 <mxfile host="65bd71144e">
     <diagram id="-sP7Vog0kfrc2KqKxCqc" name="Page-1">
-        <mxGraphModel dx="822" dy="279" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+        <mxGraphModel dx="1760" dy="970" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
                 <mxCell id="9" value="" style="group" parent="1" vertex="1" connectable="0">
-                    <mxGeometry x="140" y="40" width="730" height="650" as="geometry"/>
+                    <mxGeometry x="60" y="40" width="730" height="650" as="geometry"/>
                 </mxCell>
                 <mxCell id="6" value="" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=70;tabHeight=30;tabPosition=left;html=1;whiteSpace=wrap;" parent="9" vertex="1">
                     <mxGeometry width="730" height="650" as="geometry"/>
@@ -128,6 +128,94 @@
                         <mxPoint x="318.4803921568627" y="590" as="sourcePoint"/>
                         <mxPoint x="458.0392156862745" y="421" as="targetPoint"/>
                     </mxGeometry>
+                </mxCell>
+                <mxCell id="59" value="" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=70;tabHeight=30;tabPosition=left;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+                    <mxGeometry x="850" y="90" width="540" height="300" as="geometry"/>
+                </mxCell>
+                <mxCell id="61" value="data" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+                    <mxGeometry x="860" y="90" width="50" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="74" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0;exitY=0.25;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;dashed=1;dashPattern=8 8;" edge="1" parent="1" source="63" target="17">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="800" y="163"/>
+                            <mxPoint x="800" y="60"/>
+                            <mxPoint x="214" y="60"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="63" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;&lt;b&gt;SongDAO&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;- dbPath: String&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ getAllSongs(): List&amp;lt;Song&amp;gt;&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+                    <mxGeometry x="870" y="140" width="160" height="90" as="geometry"/>
+                </mxCell>
+                <mxCell id="75" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0;exitY=0.75;exitDx=0;exitDy=0;entryX=0.75;entryY=0;entryDx=0;entryDy=0;dashed=1;dashPattern=8 8;" edge="1" parent="1" source="64" target="22">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1030" y="245"/>
+                            <mxPoint x="1030" y="260"/>
+                            <mxPoint x="257" y="260"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="64" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;PlaylistDAO&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;- dbPath: String&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ createPlaylist(name: String): int&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ addSongToPlaylist(playlistId: int, songId: int)&lt;/p&gt;&lt;p style=&quot;margin: 0px 0px 0px 4px;&quot;&gt;&lt;span style=&quot;color: rgb(192, 192, 192);&quot;&gt;+ removeSongFromPlaylist(playlistId: int, songId: int)&lt;/span&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px 0px 0px 4px;&quot;&gt;&lt;span style=&quot;color: rgb(192, 192, 192);&quot;&gt;+ getSongsFromPLaylist(playlistId: int): List&amp;lt;Song&amp;gt;&lt;/span&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px 0px 0px 4px;&quot;&gt;&lt;span style=&quot;color: rgb(192, 192, 192);&quot;&gt;+ getNextPlaylistNumber(): int&lt;/span&gt;&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+                    <mxGeometry x="1070" y="140" width="290" height="140" as="geometry"/>
+                </mxCell>
+                <mxCell id="65" value="music" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.database;whiteSpace=wrap;" vertex="1" parent="1">
+                    <mxGeometry x="920" y="310" width="60" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="66" style="edgeStyle=none;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;dashed=1;" edge="1" parent="1" source="63" target="65">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="67" value="uses" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="66">
+                    <mxGeometry x="0.4" y="1" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="72" style="edgeStyle=none;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;dashed=1;" edge="1" parent="1" source="64" target="65">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1215" y="340"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="73" value="uses" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="72">
+                    <mxGeometry x="-0.1186" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="78" value="" style="group" vertex="1" connectable="0" parent="1">
+                    <mxGeometry x="845" y="430" width="350" height="410" as="geometry"/>
+                </mxCell>
+                <mxCell id="76" value="" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=70;tabHeight=30;tabPosition=left;html=1;whiteSpace=wrap;" vertex="1" parent="78">
+                    <mxGeometry width="350" height="410" as="geometry"/>
+                </mxCell>
+                <mxCell id="77" value="controller" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="78">
+                    <mxGeometry width="70" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="81" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;&lt;b&gt;JPlayer&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;pre&gt;&lt;font face=&quot;Helvetica&quot;&gt;- playerMP3: Player &lt;br/&gt;- playbackThread: Thread&lt;br/&gt;- isPaused: AtomicBoolean &lt;br/&gt;- isStopped: AtomicBoolean &lt;br/&gt;- currentVolume: float &lt;br/&gt;- currentSong: Song &lt;br/&gt;- currentStream: InputStream &lt;br/&gt;- songList: List&amp;lt;Song&amp;gt; &lt;br/&gt;- framesPlayed: int &lt;br/&gt;- MS_PER_FRAME: final int&lt;/font&gt; &lt;/pre&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;pre&gt;&lt;font face=&quot;Helvetica&quot;&gt;+ getCurrentVolume(): &lt;/font&gt;&lt;font face=&quot;Helvetica&quot;&gt;float&lt;/font&gt; &lt;font face=&quot;Helvetica&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;font face=&quot;Helvetica&quot;&gt;+ getCurrentPosition(): long &lt;br&gt;+ getDuration(): long &lt;br&gt;+ setSongList(List&amp;lt;Song&amp;gt;)&lt;br&gt;+ play(Song)&lt;br&gt;+ next()&lt;br&gt;+ previous()&lt;br&gt;+ getDurationFromFile(File): long &lt;br&gt;+ pause()&lt;br&gt;+ stop()&lt;br&gt;+ setVolume(float)&lt;br&gt;+ volumeUp()&lt;br&gt;+ volumeDown()&lt;br&gt;+ repeat()&lt;br&gt;+ isPlaying(): boolean &lt;br&gt;+ isPaused(): boolean &lt;br&gt;+ getCurrentSong(): Song &lt;br&gt;+ getSongList(): List&amp;lt;Song&amp;gt; &lt;br&gt;- closeResources()&lt;/font&gt;&lt;/pre&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" vertex="1" parent="78">
+                    <mxGeometry x="27.5" y="40" width="295" height="350" as="geometry"/>
+                </mxCell>
+                <mxCell id="82" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.75;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="81" target="63">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1020" y="290"/>
+                            <mxPoint x="990" y="290"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="88" value="" style="group" vertex="1" connectable="0" parent="1">
+                    <mxGeometry x="1280" y="560" width="170" height="130" as="geometry"/>
+                </mxCell>
+                <mxCell id="83" value="" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=60;tabHeight=30;tabPosition=left;html=1;whiteSpace=wrap;" vertex="1" parent="88">
+                    <mxGeometry width="170" height="130" as="geometry"/>
+                </mxCell>
+                <mxCell id="84" value="ui" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="88">
+                    <mxGeometry x="15" width="30" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="85" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;&lt;b&gt;&amp;lt;&amp;lt;GUI&amp;gt;&amp;gt;&lt;/b&gt;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;&lt;b&gt;GUI&lt;/b&gt;&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" vertex="1" parent="88">
+                    <mxGeometry x="15" y="50" width="140" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="89" style="edgeStyle=none;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;endArrow=none;endFill=0;" edge="1" parent="1" source="85" target="81">
+                    <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
             </root>
         </mxGraphModel>

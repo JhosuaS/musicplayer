@@ -8,8 +8,18 @@ public class Album {
     private List<Artist> artists;
     private List<Song> songs;
     
+    /**
+     * Default constructor for Album, builds an empty album. 
+     */
     public Album() {}
 
+    /**
+     * Constructor for Album, builds an album with the specified parameters.
+     * @param albumName
+     * @param releaseYear
+     * @param artists
+     * @param songs
+     */
     public Album(String albumName, int releaseYear, List<Artist> artists, List<Song> songs) {
         this.albumName = albumName;
         this.releaseYear = releaseYear;
@@ -17,6 +27,9 @@ public class Album {
         this.songs = songs;
     }
     
+    /**
+     * Getters and setters for Album attributes.
+     */
     public String getAlbumName() {
         return albumName;
     }
