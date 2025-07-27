@@ -27,17 +27,30 @@ public class GUI {
     private JSlider volumeSlider;
     private Timer progressTimer;
 
+    /**
+     * Constructs a new GUI with the specified player controller.
+     * 
+     * @param player The JPlayer instance to control playback
+     */
     public GUI(JPlayer player) {
         this.player = player;
         initialize();
     }
 
+    /**
+     * Loads all songs from the database and sets them in the player.
+     */
     private void loadSongsFromDatabase() {
         SongDAO songDAO = new SongDAO();
         allSongs = songDAO.getAllSongs();
         player.setSongList(allSongs);
     }
 
+    /**
+     * Creates a new playlist with the selected songs.
+     * 
+     * @param selectedSongs List of songs to include in the new playlist
+     */
     private void createNewPlaylist(List<Song> selectedSongs) {
     PlaylistDAO dao = new PlaylistDAO();
     int num = dao.getAllPlaylists().size() + 1;
@@ -52,6 +65,9 @@ public class GUI {
     JOptionPane.showMessageDialog(frame, "Playlist creada: " + playlistName);
     }
 
+    /**
+     * Initializes the GUI components and layout.
+     */
     private void initialize() {
         loadSongsFromDatabase();
         frame = new JFrame("Music Player");
@@ -72,6 +88,11 @@ public class GUI {
         setupProgressTimer();
     }
 
+    /**
+     * Creates the main view panel showing all available songs.
+     * 
+     * @return The configured JPanel containing the song list
+     */
     private JPanel createMainView() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
@@ -98,6 +119,9 @@ public class GUI {
         return panel;
     }
 
+    /**
+     * Shows a dialog for creating a new playlist.
+     */
     private void showCreatePlaylistDialog() {
         JList<String> selectList = new JList<>(
             allSongs.stream().map(Song::getTitle).toArray(String[]::new)
@@ -128,6 +152,11 @@ public class GUI {
         }
     }
 
+    /**
+     * Creates the player view panel with playback controls.
+     * 
+     * @return The configured JPanel containing player controls
+     */
     private JPanel createPlayerView() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
@@ -228,6 +257,9 @@ public class GUI {
         return panel;
     }
 
+    /**
+     * Configures the action listeners for all control buttons.
+     */
     private void configureButtons() {
         
         playButton.addActionListener(e -> togglePlayPause());
@@ -253,6 +285,9 @@ public class GUI {
         volumeDownButton.addActionListener(e -> player.volumeDown());
     }
 
+    /**
+     * Toggles between play and pause states.
+     */
     private void togglePlayPause() {
         if (player.isPlaying()) {
             player.pause();
@@ -267,6 +302,9 @@ public class GUI {
         }
     }
 
+    /**
+     * Plays the currently selected song in the list.
+     */
     private void playSelectedSong() {
         int selectedIndex = songList.getSelectedIndex();
         Song selectedSong = createSongFromData(selectedIndex);
@@ -278,6 +316,9 @@ public class GUI {
         progressTimer.start();
     }
 
+    /**
+     * Sets up the timer for updating the progress bar.
+     */
     private void setupProgressTimer() {
         progressTimer = new Timer(500, e -> {
             if (player.isPlaying()) {
@@ -294,58 +335,72 @@ public class GUI {
         });
     }
 
+    /**
+     * Gets the Song object from the data at the specified index.
+     * 
+     * @param index The index of the song in the list
+     * @return The Song object at the specified index
+     */
     private Song createSongFromData(int index) {
         return allSongs.get(index);
     }
 
+    /**
+     * Makes the GUI visible.
+     */
     public void show() {
         frame.setVisible(true);
     }
 
+    /**
+     * Shows a dialog for editing playlist songs.
+     * 
+     * @param playlist The playlist to edit
+     */
     private void showPlaylistSongsDialog(Playlist playlist) {
-    List<Song> playlistSongs = playlist.getSongs();
-    DefaultListModel<String> songModel = new DefaultListModel<>();
-    for (Song s : playlistSongs) songModel.addElement(s.getTitle());
-    JList<String> songList = new JList<>(songModel);
+        List<Song> playlistSongs = playlist.getSongs();
+        DefaultListModel<String> songModel = new DefaultListModel<>();
+        for (Song s : playlistSongs) songModel.addElement(s.getTitle());
+        JList<String> songList = new JList<>(songModel);
 
-    List<Song> availableSongs = allSongs;
-    DefaultListModel<String> availableModel = new DefaultListModel<>();
-    for (Song s : availableSongs) availableModel.addElement(s.getTitle());
-    JList<String> availableList = new JList<>(availableModel);
+        List<Song> availableSongs = allSongs;
+        DefaultListModel<String> availableModel = new DefaultListModel<>();
+        for (Song s : availableSongs) availableModel.addElement(s.getTitle());
+        JList<String> availableList = new JList<>(availableModel);
 
-    JPanel panel = new JPanel(new GridLayout(1, 2, 10, 10));
-    panel.add(new JScrollPane(songList));
-    panel.add(new JScrollPane(availableList));
+        JPanel panel = new JPanel(new GridLayout(1, 2, 10, 10));
+        panel.add(new JScrollPane(songList));
+        panel.add(new JScrollPane(availableList));
 
-    JButton addButton = new JButton("Añadir a playlist");
-    addButton.addActionListener(e -> {
-        int idx = availableList.getSelectedIndex();
-        if (idx >= 0) {
-            Song songToAdd = availableSongs.get(idx);
-            playlist.addSong(songToAdd); 
-            songModel.addElement(songToAdd.getTitle());
-        }
-    });
+        JButton addButton = new JButton("Añadir a playlist");
+        addButton.addActionListener(e -> {
+            int idx = availableList.getSelectedIndex();
+            if (idx >= 0) {
+                Song songToAdd = availableSongs.get(idx);
+                playlist.addSong(songToAdd); 
+                songModel.addElement(songToAdd.getTitle());
+            }
+        });
 
-    JButton removeButton = new JButton("Quitar de playlist");
-    removeButton.addActionListener(e -> {
-        int idx = songList.getSelectedIndex();
-        if (idx >= 0) {
-            Song songToRemove = playlistSongs.get(idx);
-            playlist.removeSong(songToRemove); 
-            songModel.remove(idx);
-        }
-    });
+        JButton removeButton = new JButton("Quitar de playlist");
+        removeButton.addActionListener(e -> {
+            int idx = songList.getSelectedIndex();
+            if (idx >= 0) {
+                Song songToRemove = playlistSongs.get(idx);
+                playlist.removeSong(songToRemove); 
+                songModel.remove(idx);
+            }   
+        });
 
-    JPanel buttonPanel = new JPanel();
-    buttonPanel.add(addButton);
-    buttonPanel.add(removeButton);
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.add(addButton);
+        buttonPanel.add(removeButton);
 
-    JPanel mainPanel = new JPanel(new BorderLayout());
-    mainPanel.add(panel, BorderLayout.CENTER);
-    mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.add(panel, BorderLayout.CENTER);
+        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
-    JOptionPane.showMessageDialog(frame, mainPanel, "Editar Playlist: " + playlist.getName(), JOptionPane.PLAIN_MESSAGE);
-}
+        JOptionPane.showMessageDialog(frame, mainPanel, "Editar Playlist: " + playlist.getName(), JOptionPane.PLAIN_MESSAGE);
+    }
 
 }

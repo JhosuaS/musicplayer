@@ -22,24 +22,48 @@ public class JPlayer {
     private int framesPlayed = 0;  
     private final int MS_PER_FRAME = 26;  
 
-
+    /**
+     * Gets the current volume level.
+     * 
+     * @return Current volume level (0.0 to 1.0)
+     */
     public float getCurrentVolume() {
         return currentVolume;
     }
 
+    /**
+     * Gets the current playback position in milliseconds.
+     * 
+     * @return Current position in milliseconds
+     */
     public long getCurrentPosition() {
         return framesPlayed * MS_PER_FRAME;
     }
 
+    /**
+     * Gets the duration of the current song in milliseconds.
+     * 
+     * @return Duration in milliseconds, or 0 if no song is loaded
+     */
     public long getDuration() {
         if (currentSong == null) return 0;
         return (long)(currentSong.getDuration() * 1000);
     }
 
+    /**
+     * Sets the list of available songs for playback.
+     * 
+     * @param songs List of Song objects
+     */
     public void setSongList(List<Song> songs) {
         this.songList = songs;
     }
 
+    /**
+     * Starts playback of the specified song.
+     * 
+     * @param song The Song object to play
+     */
     public void play(Song song) {
         if (song == null || song.getPath() == null) {
             System.err.println("Invalid song or path");
@@ -97,6 +121,10 @@ public class JPlayer {
         }
     }
 
+    /**
+     * Plays the next song in the playlist.
+     * Wraps around to the first song if currently playing the last song.
+     */
     public void next() {
         if (songList == null || songList.isEmpty()) {
             System.out.println("No song list available");
@@ -110,6 +138,10 @@ public class JPlayer {
         }
     }
 
+    /**
+     * Plays the previous song in the playlist.
+     * Wraps around to the last song if currently playing the first song.
+     */
     public void previous() {
         if (songList == null || songList.isEmpty()) {
             System.out.println("No song list available");
@@ -125,6 +157,12 @@ public class JPlayer {
     
     }
 
+    /**
+     * Gets the duration of an audio file in milliseconds.
+     * 
+     * @param file The audio file to check
+     * @return Duration in milliseconds, or 0 if duration cannot be determined
+     */
     public long getDurationFromFile(File file) {
         try {
             MpegAudioFileReader reader = new MpegAudioFileReader();
@@ -138,6 +176,9 @@ public class JPlayer {
         }
     }
 
+    /**
+     * Pauses the current playback.
+     */
     public void pause() {
         if (playerMP3 != null && !isStopped.get() && !isPaused.get()) {
             isPaused.set(true);
@@ -145,6 +186,9 @@ public class JPlayer {
         }
     }
 
+    /**
+     * Stops the current playback and releases resources.
+     */
     public void stop() {
         isStopped.set(true);
         isPaused.set(false);
@@ -158,6 +202,11 @@ public class JPlayer {
         closeResources();
     }
 
+    /**
+     * Sets the playback volume.
+     * 
+     * @param volume Volume level (0.0 to 1.0)
+     */
     public void setVolume(float volume) {
         if (volume < 0f) volume = 0f;
         if (volume > 1f) volume = 1f;
@@ -166,20 +215,32 @@ public class JPlayer {
         System.out.println("Volume set to: " + (int)(volume * 100) + "%");
     }
 
+    /**
+     * Increases the volume by 10%.
+     */
     public void volumeUp() {
         setVolume(Math.round((currentVolume + 0.1f) * 10) / 10.0f); 
     }
 
+    /**
+     * Decreases the volume by 10%.
+     */
     public void volumeDown() {
         setVolume(Math.round((currentVolume - 0.1f) * 10) / 10.0f); 
     }
 
+    /**
+     * Repeats the current song by restarting playback.
+     */
     public void repeat() {
         if (currentSong != null) {
             play(currentSong);
         }
     }
 
+    /**
+     * Closes and releases all playback resources.
+     */
     private void closeResources() {
         try {
             if (playerMP3 != null) {
@@ -195,18 +256,38 @@ public class JPlayer {
         }
     }
 
+    /**
+     * Checks if playback is currently active.
+     * 
+     * @return true if playing, false otherwise
+     */
     public boolean isPlaying() {
         return !isStopped.get() && !isPaused.get();
     }
 
+    /**
+     * Checks if playback is currently paused.
+     * 
+     * @return true if paused, false otherwise
+     */
     public boolean isPaused() {
         return isPaused.get();
     }
-    
+
+    /**
+     * Gets the currently playing song.
+     * 
+     * @return Current Song object, or null if no song is playing
+     */
     public Song getCurrentSong() {
         return currentSong;
     }
-    
+
+    /**
+     * Gets the list of available songs.
+     * 
+     * @return List of Song objects
+     */
     public List<Song> getSongList() {
         return songList;
     }
