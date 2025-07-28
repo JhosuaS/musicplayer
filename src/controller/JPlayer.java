@@ -9,7 +9,6 @@ import javazoom.spi.mpeg.sampled.file.MpegAudioFileReader;
 import javax.sound.sampled.AudioFileFormat;
 import java.util.Map;
 
-
 public class JPlayer {
     private Player playerMP3;
     private Thread playbackThread;
@@ -19,8 +18,9 @@ public class JPlayer {
     private Song currentSong;
     private InputStream currentStream;
     private List<Song> songList;
-    private int framesPlayed = 0;  
-    private final int MS_PER_FRAME = 26;  
+    private int framesPlayed = 0;
+    private final int MS_PER_FRAME = 26;
+    private VolumeAudioDevice audioDevice = new VolumeAudioDevice();
 
     /**
      * Gets the current volume level.
@@ -46,8 +46,9 @@ public class JPlayer {
      * @return Duration in milliseconds, or 0 if no song is loaded
      */
     public long getDuration() {
-        if (currentSong == null) return 0;
-        return (long)(currentSong.getDuration() * 1000);
+        if (currentSong == null)
+            return 0;
+        return (long) (currentSong.getDuration() * 1000);
     }
 
     /**
@@ -71,44 +72,60 @@ public class JPlayer {
         }
 
         stop();
+
+        try {
+            if (playbackThread != null && playbackThread.isAlive()) {
+                playbackThread.join();
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         currentSong = song;
 
         try {
-            currentSong = song;
             currentSong.setCurrentPlayTime(0);
             long duration = getDurationFromFile(new File(song.getPath()));
-            song.setDuration(duration / 1000f); 
+            song.setDuration(duration / 1000f);
+
             framesPlayed = 0;
+
             currentStream = new BufferedInputStream(new FileInputStream(song.getPath()));
-            playerMP3 = new Player(currentStream);
+
+            audioDevice = new VolumeAudioDevice();
+            audioDevice.setVolume(currentVolume);
+
+            playerMP3 = new Player(currentStream, audioDevice);
+
             isStopped.set(false);
             isPaused.set(false);
 
-            playbackThread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        System.out.println("Playing: " + song.getTitle());
-                        while (!isStopped.get()) {
-                            if (!isPaused.get()) {
-                                if (playerMP3 == null || !playerMP3.play(1)) {
-                                    break;
-                                } else {
-                                    framesPlayed++;
-                                    if (currentSong != null) {
-                                        currentSong.setCurrentPlayTime(framesPlayed * MS_PER_FRAME / 1000f);
-                                    }
-                                }
+            playbackThread = new Thread(() -> {
+                try {
+                    System.out.println("Playing: " + song.getTitle());
+                    while (!isStopped.get()) {
+                        if (!isPaused.get()) {
+                            if (playerMP3 == null || !playerMP3.play(1)) {
+                                break;
                             } else {
-                                Thread.sleep(100);
+                                framesPlayed++;
+                                if (currentSong != null) {
+                                    currentSong.setCurrentPlayTime(framesPlayed * MS_PER_FRAME / 1000f);
+                                }
                             }
+                        } else {
+                            Thread.sleep(100);
                         }
-                    } catch (Exception e) {
-                        if (!isStopped.get()) {
-                            System.err.println("Playback error: " + e.getMessage());
-                        }
-                    } finally {
-                        closeResources();
+                    }
+                } catch (Exception e) {
+                    if (!isStopped.get()) {
+                        System.err.println("Playback error: " + e.getMessage());
+                    }
+                } finally {
+                    closeResources();
+
+                    if (!isStopped.get() && !isPaused.get()) {
+                        new Thread(() -> next()).start();
                     }
                 }
             });
@@ -154,7 +171,7 @@ public class JPlayer {
         } else {
             play(songList.get(songList.size() - 1));
         }
-    
+
     }
 
     /**
@@ -169,7 +186,7 @@ public class JPlayer {
             AudioFileFormat format = reader.getAudioFileFormat(file);
             Map<?, ?> props = format.properties();
             Long durationMicroseconds = (Long) props.get("duration");
-            return durationMicroseconds / 1000; 
+            return durationMicroseconds / 1000;
         } catch (Exception e) {
             System.err.println("Could not read file duration: " + e.getMessage());
             return 0;
@@ -194,7 +211,7 @@ public class JPlayer {
         isPaused.set(false);
         try {
             if (playbackThread != null && playbackThread.isAlive()) {
-                playbackThread.join(); 
+                playbackThread.join();
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -208,25 +225,28 @@ public class JPlayer {
      * @param volume Volume level (0.0 to 1.0)
      */
     public void setVolume(float volume) {
-        if (volume < 0f) volume = 0f;
-        if (volume > 1f) volume = 1f;
-        
+        if (volume < 0f)
+            volume = 0f;
+        if (volume > 1f)
+            volume = 1f;
+
         currentVolume = volume;
-        System.out.println("Volume set to: " + (int)(volume * 100) + "%");
+        audioDevice.setVolume(volume);
+        System.out.println("Volume set to: " + (int) (volume * 100) + "%");
     }
 
     /**
      * Increases the volume by 10%.
      */
     public void volumeUp() {
-        setVolume(Math.round((currentVolume + 0.1f) * 10) / 10.0f); 
+        setVolume(Math.round((currentVolume + 0.1f) * 10) / 10.0f);
     }
 
     /**
      * Decreases the volume by 10%.
      */
     public void volumeDown() {
-        setVolume(Math.round((currentVolume - 0.1f) * 10) / 10.0f); 
+        setVolume(Math.round((currentVolume - 0.1f) * 10) / 10.0f);
     }
 
     /**
@@ -290,5 +310,78 @@ public class JPlayer {
      */
     public List<Song> getSongList() {
         return songList;
+    }
+
+    public void resume() {
+        if (currentSong == null || currentSong.getPath() == null) {
+            System.err.println("No song loaded to resume.");
+            return;
+        }
+
+        if (!isPaused.get()) {
+            System.out.println("Player is not paused.");
+            return;
+        }
+
+        try {
+            File audioFile = new File(currentSong.getPath());
+
+            long resumeMs = getCurrentPosition();
+            long bytesPerMs = estimateBytesPerMillisecond(audioFile);
+            long safeResumeMs = Math.max(0, resumeMs - 1000);
+            long skipBytes = safeResumeMs * bytesPerMs;
+
+            System.out.println("Resuming from ~" + resumeMs + "ms, skipping " + skipBytes + " bytes");
+
+            InputStream fileStream = new FileInputStream(audioFile);
+            currentStream = new BufferedInputStream(fileStream);
+
+            long actuallySkipped = currentStream.skip(skipBytes);
+            if (actuallySkipped < skipBytes) {
+                System.err.println("Skipped less than expected: " + actuallySkipped + " bytes");
+            }
+
+            playerMP3 = new Player(currentStream);
+            isStopped.set(false);
+            isPaused.set(false);
+
+            playbackThread = new Thread(() -> {
+                try {
+                    while (!isStopped.get()) {
+                        if (!isPaused.get()) {
+                            if (playerMP3 == null || !playerMP3.play(1)) {
+                                break;
+                            } else {
+                                framesPlayed++;
+                                if (currentSong != null) {
+                                    currentSong.setCurrentPlayTime(framesPlayed * MS_PER_FRAME / 1000f);
+                                }
+                            }
+                        } else {
+                            Thread.sleep(100);
+                        }
+                    }
+                } catch (Exception e) {
+                    if (!isStopped.get()) {
+                        System.err.println("Error during resume playback: " + e.getMessage());
+                    }
+                } finally {
+                    closeResources();
+                }
+            });
+
+            playbackThread.start();
+        } catch (Exception e) {
+            System.err.println("Failed to resume: " + e.getMessage());
+            closeResources();
+        }
+    }
+
+    private long estimateBytesPerMillisecond(File file) throws IOException {
+        long fileSize = file.length();
+        long duration = getDurationFromFile(file);
+        if (duration == 0)
+            return 0;
+        return fileSize / duration;
     }
 }

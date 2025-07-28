@@ -52,17 +52,17 @@ public class GUI {
      * @param selectedSongs List of songs to include in the new playlist
      */
     private void createNewPlaylist(List<Song> selectedSongs) {
-    PlaylistDAO dao = new PlaylistDAO();
-    int num = dao.getAllPlaylists().size() + 1;
-    String playlistName = String.format("Mi Playlist #%03d", num);
+        PlaylistDAO dao = new PlaylistDAO();
+        int num = dao.getAllPlaylists().size() + 1;
+        String playlistName = String.format("Mi Playlist #%03d", num);
 
-    int playlistId = dao.createPlaylist(playlistName);
+        int playlistId = dao.createPlaylist(playlistName);
 
-    for (Song song : selectedSongs) {
-        dao.addSongToPlaylist(playlistId, song.getId());
-    }
+        for (Song song : selectedSongs) {
+            dao.addSongToPlaylist(playlistId, song.getId());
+        }
 
-    JOptionPane.showMessageDialog(frame, "Playlist creada: " + playlistName);
+        JOptionPane.showMessageDialog(frame, "Playlist creada: " + playlistName);
     }
 
     /**
@@ -78,7 +78,8 @@ public class GUI {
         cardPanel = new JPanel(cardLayout);
 
         mainView = createMainView();
-        //playlistView = createPlaylistView(); #TODO Arreglar la manera en que se reproducen y se muestran las playlists
+        // playlistView = createPlaylistView(); #TODO Arreglar la manera en que se
+        // reproducen y se muestran las playlists
         playerView = createPlayerView();
 
         cardPanel.add(mainView, "main");
@@ -98,7 +99,8 @@ public class GUI {
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         DefaultListModel<String> allSongsModel = new DefaultListModel<>();
-        for (Song s : allSongs) allSongsModel.addElement(s.getTitle());
+        for (Song s : allSongs)
+            allSongsModel.addElement(s.getTitle());
         songList = new JList<>(allSongsModel);
         songList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         songList.setFont(new Font("Arial", Font.PLAIN, 18));
@@ -124,19 +126,17 @@ public class GUI {
      */
     private void showCreatePlaylistDialog() {
         JList<String> selectList = new JList<>(
-            allSongs.stream().map(Song::getTitle).toArray(String[]::new)
-        );
+                allSongs.stream().map(Song::getTitle).toArray(String[]::new));
         selectList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         selectList.setVisibleRowCount(10);
         JScrollPane scrollPane = new JScrollPane(selectList);
 
         int result = JOptionPane.showConfirmDialog(
-            frame,
-            scrollPane,
-            "Selecciona canciones para la nueva playlist",
-            JOptionPane.OK_CANCEL_OPTION,
-            JOptionPane.PLAIN_MESSAGE
-        );
+                frame,
+                scrollPane,
+                "Selecciona canciones para la nueva playlist",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE);
 
         if (result == JOptionPane.OK_OPTION) {
             int[] selectedIndices = selectList.getSelectedIndices();
@@ -174,7 +174,6 @@ public class GUI {
         backButton.addActionListener(e -> cardLayout.show(cardPanel, "main"));
         bottomPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 20, 20));
         bottomPanel.setPreferredSize(new Dimension(frame.getWidth(), 70));
-        
 
         JPanel controlsPanel = new JPanel(new GridLayout(3, 3, 15, 15));
         controlsPanel.setBorder(BorderFactory.createEmptyBorder(20, 50, 20, 50));
@@ -188,15 +187,16 @@ public class GUI {
 
         Font buttonFont = new Font("Arial", Font.PLAIN, 16);
         Dimension buttonSize = new Dimension(120, 40);
-        
-        Arrays.asList(prevButton, playButton, nextButton, repeatButton, volumeDownButton, volumeUpButton).forEach(button -> {
-            button.setFont(buttonFont);
-            button.setPreferredSize(buttonSize);
-        });
+
+        Arrays.asList(prevButton, playButton, nextButton, repeatButton, volumeDownButton, volumeUpButton)
+                .forEach(button -> {
+                    button.setFont(buttonFont);
+                    button.setPreferredSize(buttonSize);
+                });
 
         configureButtons();
 
-        volumeSlider = new JSlider(0, 100, (int)(player.getCurrentVolume() * 100));
+        volumeSlider = new JSlider(0, 100, (int) (player.getCurrentVolume() * 100));
         volumeSlider.setPreferredSize(new Dimension(120, 20));
         volumeSlider.setPaintTrack(true);
         volumeSlider.addChangeListener(e -> {
@@ -223,14 +223,14 @@ public class GUI {
         volumeUpButton.addActionListener(e -> {
             volumeUpButton.setEnabled(false);
             player.volumeUp();
-            volumeSlider.setValue((int)(player.getCurrentVolume() * 100));
+            volumeSlider.setValue((int) (player.getCurrentVolume() * 100));
             new Timer(300, evt -> volumeUpButton.setEnabled(true)).start();
         });
 
         volumeDownButton.addActionListener(e -> {
             volumeDownButton.setEnabled(false);
             player.volumeDown();
-            volumeSlider.setValue((int)(player.getCurrentVolume() * 100));
+            volumeSlider.setValue((int) (player.getCurrentVolume() * 100));
             new Timer(300, evt -> volumeDownButton.setEnabled(true)).start();
         });
 
@@ -261,9 +261,9 @@ public class GUI {
      * Configures the action listeners for all control buttons.
      */
     private void configureButtons() {
-        
+
         playButton.addActionListener(e -> togglePlayPause());
-        
+
         nextButton.addActionListener(e -> {
             int nextIndex = songList.getSelectedIndex() + 1;
             if (nextIndex < songList.getModel().getSize()) {
@@ -291,13 +291,13 @@ public class GUI {
     private void togglePlayPause() {
         if (player.isPlaying()) {
             player.pause();
-            playButton.setText("▶ Restart");
+            playButton.setText("▶ Resart");
             progressTimer.stop();
         } else if (player.isPaused()) {
+            player.resume();
             player.stop();
-            playSelectedSong();
-        }
-        else {
+            progressTimer.start();
+        } else {
             playSelectedSong();
         }
     }
@@ -308,11 +308,11 @@ public class GUI {
     private void playSelectedSong() {
         int selectedIndex = songList.getSelectedIndex();
         Song selectedSong = createSongFromData(selectedIndex);
-        
+
         player.play(selectedSong);
         playButton.setText("Stop");
         songInfoLabel.setText("Now playing: " + selectedSong.getTitle());
-        
+
         progressTimer.start();
     }
 
@@ -323,13 +323,13 @@ public class GUI {
         progressTimer = new Timer(500, e -> {
             if (player.isPlaying()) {
                 long position = player.getCurrentPosition();
-                long duration = player.getDuration();                
-                progressBar.setMaximum((int)duration);
-                progressBar.setValue((int)position);
-                
+                long duration = player.getDuration();
+                progressBar.setMaximum((int) duration);
+                progressBar.setValue((int) position);
+
                 String timeText = String.format("%d:%02d / %d:%02d",
-                    (position / 60000), ((position % 60000) / 1000),
-                    (duration / 60000), ((duration % 60000) / 1000));
+                        (position / 60000), ((position % 60000) / 1000),
+                        (duration / 60000), ((duration % 60000) / 1000));
                 progressBar.setString(timeText);
             }
         });
@@ -360,12 +360,14 @@ public class GUI {
     private void showPlaylistSongsDialog(Playlist playlist) {
         List<Song> playlistSongs = playlist.getSongs();
         DefaultListModel<String> songModel = new DefaultListModel<>();
-        for (Song s : playlistSongs) songModel.addElement(s.getTitle());
+        for (Song s : playlistSongs)
+            songModel.addElement(s.getTitle());
         JList<String> songList = new JList<>(songModel);
 
         List<Song> availableSongs = allSongs;
         DefaultListModel<String> availableModel = new DefaultListModel<>();
-        for (Song s : availableSongs) availableModel.addElement(s.getTitle());
+        for (Song s : availableSongs)
+            availableModel.addElement(s.getTitle());
         JList<String> availableList = new JList<>(availableModel);
 
         JPanel panel = new JPanel(new GridLayout(1, 2, 10, 10));
@@ -377,7 +379,7 @@ public class GUI {
             int idx = availableList.getSelectedIndex();
             if (idx >= 0) {
                 Song songToAdd = availableSongs.get(idx);
-                playlist.addSong(songToAdd); 
+                playlist.addSong(songToAdd);
                 songModel.addElement(songToAdd.getTitle());
             }
         });
@@ -387,9 +389,9 @@ public class GUI {
             int idx = songList.getSelectedIndex();
             if (idx >= 0) {
                 Song songToRemove = playlistSongs.get(idx);
-                playlist.removeSong(songToRemove); 
+                playlist.removeSong(songToRemove);
                 songModel.remove(idx);
-            }   
+            }
         });
 
         JPanel buttonPanel = new JPanel();
@@ -400,7 +402,8 @@ public class GUI {
         mainPanel.add(panel, BorderLayout.CENTER);
         mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
-        JOptionPane.showMessageDialog(frame, mainPanel, "Editar Playlist: " + playlist.getName(), JOptionPane.PLAIN_MESSAGE);
+        JOptionPane.showMessageDialog(frame, mainPanel, "Editar Playlist: " + playlist.getName(),
+                JOptionPane.PLAIN_MESSAGE);
     }
 
 }
