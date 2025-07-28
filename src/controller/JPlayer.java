@@ -8,6 +8,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javazoom.spi.mpeg.sampled.file.MpegAudioFileReader;
 import javax.sound.sampled.AudioFileFormat;
 import java.util.Map;
+import javazoom.jl.player.JavaSoundAudioDevice;
+import javazoom.jl.decoder.JavaLayerException;
 
 public class JPlayer {
     private Player playerMP3;
@@ -20,6 +22,7 @@ public class JPlayer {
     private List<Song> songList;
     private int framesPlayed = 0;
     private final int MS_PER_FRAME = 26;
+    private VolumeAudioDevice audioDevice = new VolumeAudioDevice();
 
     /**
      * Gets the current volume level.
@@ -80,7 +83,8 @@ public class JPlayer {
             song.setDuration(duration / 1000f);
             framesPlayed = 0;
             currentStream = new BufferedInputStream(new FileInputStream(song.getPath()));
-            playerMP3 = new Player(currentStream);
+            audioDevice.setVolume(currentVolume);
+            playerMP3 = new Player(currentStream, audioDevice);
             isStopped.set(false);
             isPaused.set(false);
 
@@ -214,6 +218,7 @@ public class JPlayer {
             volume = 1f;
 
         currentVolume = volume;
+        audioDevice.setVolume(volume);
         System.out.println("Volume set to: " + (int) (volume * 100) + "%");
     }
 
@@ -308,10 +313,9 @@ public class JPlayer {
         try {
             File audioFile = new File(currentSong.getPath());
 
-            // Calcular cuántos bytes saltar según la duración
-            long resumeMs = getCurrentPosition(); // tiempo en ms desde donde queremos reanudar
+            long resumeMs = getCurrentPosition();
             long bytesPerMs = estimateBytesPerMillisecond(audioFile);
-            long safeResumeMs = Math.max(0, resumeMs - 1000); // retroceder 1 segundo para seguridad
+            long safeResumeMs = Math.max(0, resumeMs - 1000);
             long skipBytes = safeResumeMs * bytesPerMs;
 
             System.out.println("Resuming from ~" + resumeMs + "ms, skipping " + skipBytes + " bytes");
@@ -361,8 +365,8 @@ public class JPlayer {
     }
 
     private long estimateBytesPerMillisecond(File file) throws IOException {
-        long fileSize = file.length(); // en bytes
-        long duration = getDurationFromFile(file); // en milisegundos
+        long fileSize = file.length();
+        long duration = getDurationFromFile(file);
         if (duration == 0)
             return 0;
         return fileSize / duration;

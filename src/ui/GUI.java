@@ -291,7 +291,7 @@ public class GUI {
     private void togglePlayPause() {
         if (player.isPlaying()) {
             player.pause();
-            playButton.setText("▶ Resume");
+            playButton.setText("▶ Resart");
             progressTimer.stop();
         } else if (player.isPaused()) {
             player.resume();
