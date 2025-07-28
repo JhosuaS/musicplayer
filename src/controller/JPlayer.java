@@ -71,11 +71,11 @@ public class JPlayer {
             return;
         }
 
-        stop(); // Detiene cualquier reproducción anterior
+        stop();
 
         try {
             if (playbackThread != null && playbackThread.isAlive()) {
-                playbackThread.join(); // Espera a que finalice el hilo anterior
+                playbackThread.join();
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -88,11 +88,10 @@ public class JPlayer {
             long duration = getDurationFromFile(new File(song.getPath()));
             song.setDuration(duration / 1000f);
 
-            framesPlayed = 0; // Reinicia el conteo de frames
+            framesPlayed = 0;
 
             currentStream = new BufferedInputStream(new FileInputStream(song.getPath()));
 
-            // Nueva instancia de audioDevice para cada canción
             audioDevice = new VolumeAudioDevice();
             audioDevice.setVolume(currentVolume);
 
@@ -124,6 +123,10 @@ public class JPlayer {
                     }
                 } finally {
                     closeResources();
+
+                    if (!isStopped.get() && !isPaused.get()) {
+                        new Thread(() -> next()).start();
+                    }
                 }
             });
 
