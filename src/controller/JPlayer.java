@@ -8,8 +8,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javazoom.spi.mpeg.sampled.file.MpegAudioFileReader;
 import javax.sound.sampled.AudioFileFormat;
 import java.util.Map;
-import javazoom.jl.player.JavaSoundAudioDevice;
-import javazoom.jl.decoder.JavaLayerException;
 
 public class JPlayer {
     private Player playerMP3;
@@ -73,47 +71,59 @@ public class JPlayer {
             return;
         }
 
-        stop();
+        stop(); // Detiene cualquier reproducción anterior
+
+        try {
+            if (playbackThread != null && playbackThread.isAlive()) {
+                playbackThread.join(); // Espera a que finalice el hilo anterior
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         currentSong = song;
 
         try {
-            currentSong = song;
             currentSong.setCurrentPlayTime(0);
             long duration = getDurationFromFile(new File(song.getPath()));
             song.setDuration(duration / 1000f);
-            framesPlayed = 0;
+
+            framesPlayed = 0; // Reinicia el conteo de frames
+
             currentStream = new BufferedInputStream(new FileInputStream(song.getPath()));
+
+            // Nueva instancia de audioDevice para cada canción
+            audioDevice = new VolumeAudioDevice();
             audioDevice.setVolume(currentVolume);
+
             playerMP3 = new Player(currentStream, audioDevice);
+
             isStopped.set(false);
             isPaused.set(false);
 
-            playbackThread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        System.out.println("Playing: " + song.getTitle());
-                        while (!isStopped.get()) {
-                            if (!isPaused.get()) {
-                                if (playerMP3 == null || !playerMP3.play(1)) {
-                                    break;
-                                } else {
-                                    framesPlayed++;
-                                    if (currentSong != null) {
-                                        currentSong.setCurrentPlayTime(framesPlayed * MS_PER_FRAME / 1000f);
-                                    }
-                                }
+            playbackThread = new Thread(() -> {
+                try {
+                    System.out.println("Playing: " + song.getTitle());
+                    while (!isStopped.get()) {
+                        if (!isPaused.get()) {
+                            if (playerMP3 == null || !playerMP3.play(1)) {
+                                break;
                             } else {
-                                Thread.sleep(100);
+                                framesPlayed++;
+                                if (currentSong != null) {
+                                    currentSong.setCurrentPlayTime(framesPlayed * MS_PER_FRAME / 1000f);
+                                }
                             }
+                        } else {
+                            Thread.sleep(100);
                         }
-                    } catch (Exception e) {
-                        if (!isStopped.get()) {
-                            System.err.println("Playback error: " + e.getMessage());
-                        }
-                    } finally {
-                        closeResources();
                     }
+                } catch (Exception e) {
+                    if (!isStopped.get()) {
+                        System.err.println("Playback error: " + e.getMessage());
+                    }
+                } finally {
+                    closeResources();
                 }
             });
 
