@@ -5,7 +5,7 @@ import java.util.List;
 public class Album {
     private String albumName;
     private int releaseYear;
-    private List<Artist> artists;
+    private int artist_id;
     private List<Song> songs;
     
     /**
@@ -20,10 +20,10 @@ public class Album {
      * @param artists
      * @param songs
      */
-    public Album(String albumName, int releaseYear, List<Artist> artists, List<Song> songs) {
+    public Album(String albumName, int releaseYear, int artist_id, List<Song> songs) {
         this.albumName = albumName;
         this.releaseYear = releaseYear;
-        this.artists = artists;
+        this.artist_id = artist_id;
         this.songs = songs;
     }
     
@@ -42,11 +42,11 @@ public class Album {
     public void setReleaseYear(int releaseYear) {
         this.releaseYear = releaseYear;
     }
-    public List<Artist> getArtists() {
-        return artists;
+    public int getArtist() {
+        return artist_id;
     }
-    public void setArtists(List<Artist> artists) {
-        this.artists = artists;
+    public void setArtists(int artist_id) {
+        this.artist_id = artist_id;
     }
     public List<Song> getSongs() {
         return songs;
