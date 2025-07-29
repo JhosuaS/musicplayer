@@ -16,13 +16,18 @@ public class SongDAO {
         List<Song> songs = new ArrayList<>();
         try (Connection connection = DriverManager.getConnection(dbPath);
              Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery("SELECT * FROM song")) {
+             ResultSet resultSet = statement.executeQuery("SELECT song.*, artist.name AS artist_name " + 
+                                                          "FROM song " +
+                                                          "JOIN album_artist ON song.album_id = album_artist.album_id " + 
+                                                          "JOIN artist ON album_artist.artist_id = artist.id")) {
             while (resultSet.next()) {
                 Song song = new Song(
                     resultSet.getInt("id"),
                     resultSet.getString("title"),
                     resultSet.getFloat("duration"),
-                    resultSet.getString("path")
+                    resultSet.getString("path"),
+                    resultSet.getInt("album_id"),
+                    resultSet.getString("artist_name")
                 );
                 songs.add(song);
             }
