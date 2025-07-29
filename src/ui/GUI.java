@@ -7,6 +7,7 @@ import model.*;
 
 import java.util.List;
 import controller.JPlayer;
+import data.SongDAO;
 
 public class GUI {
     private JPlayer player;
@@ -167,23 +168,9 @@ public class GUI {
         controlsPanel.add(repeatButton);
         controlsPanel.add(new JLabel());
 
-        volumeUpButton.addActionListener(e -> {
-            volumeUpButton.setEnabled(false);
-            player.volumeUp();
-            updatingSlider = true;
-            volumeSlider.setValue((int) (player.getCurrentVolume() * 100));
-            updatingSlider = false;
-            new Timer(300, evt -> volumeUpButton.setEnabled(true)).start();
-        });
+        volumeUpButton.addActionListener(e -> VolUp());
 
-        volumeDownButton.addActionListener(e -> {
-            volumeDownButton.setEnabled(false);
-            player.volumeDown();
-            updatingSlider = true;
-            volumeSlider.setValue((int) (player.getCurrentVolume() * 100));
-            updatingSlider = false;
-            new Timer(300, evt -> volumeDownButton.setEnabled(true)).start();
-        });
+        volumeDownButton.addActionListener(e -> VolDown());
 
         JPanel controlsWrapper = new JPanel(new BorderLayout());
         controlsWrapper.add(controlsPanel, BorderLayout.NORTH);
@@ -216,30 +203,54 @@ public class GUI {
 
         playButton.addActionListener(e -> togglePlayPause());
 
-        nextButton.addActionListener(e -> {
+        nextButton.addActionListener(e -> NextM());
+
+        prevButton.addActionListener(e -> PrevM());
+
+        repeatButton.addActionListener(e -> player.repeat());
+    }
+public void BackMenus(){cardLayout.show(cardPanel, "main");
+}
+    public void playSelectedSongExternamente() {
+    playSelectedSong(); 
+    cardLayout.show(cardPanel, "player"); 
+}
+public void VolDown(){
+            volumeDownButton.setEnabled(false);
+            player.volumeDown();
+            updatingSlider = true;
+            volumeSlider.setValue((int) (player.getCurrentVolume() * 100));
+            updatingSlider = false;
+            new Timer(300, evt -> volumeDownButton.setEnabled(true)).start();
+        }
+public void VolUp(){
+            volumeUpButton.setEnabled(false);
+            player.volumeUp();
+            updatingSlider = true;
+            volumeSlider.setValue((int) (player.getCurrentVolume() * 100));
+            updatingSlider = false;
+            new Timer(300, evt -> volumeUpButton.setEnabled(true)).start();
+        }
+public void PrevM(){
             int nextIndex = songList.getSelectedIndex() + 1;
             if (nextIndex < songList.getModel().getSize()) {
                 songList.setSelectedIndex(nextIndex);
                 playSelectedSong();
             }
-        });
-
-        prevButton.addActionListener(e -> {
+        }
+    public void NextM(){
             int prevIndex = songList.getSelectedIndex() - 1;
             if (prevIndex >= 0) {
                 songList.setSelectedIndex(prevIndex);
                 playSelectedSong();
             }
-        });
-
-        repeatButton.addActionListener(e -> player.repeat());
-    }
+        }
 
     /**
      * Toggles between play and pause states.
      * Updates the play button icon accordingly.
      */
-    private void togglePlayPause() {
+    public void togglePlayPause() {
         if (player.isPlaying()) {
             player.pause();
             playButton.setText("↩");
@@ -305,7 +316,7 @@ public class GUI {
     public void show() {
         frame.setVisible(true);
     }
-
+  
     /**
      * Gamepad control methods
      */
@@ -385,3 +396,6 @@ public class GUI {
         prevButton.doClick();
     }
 }
+
+}
+
