@@ -24,6 +24,7 @@ public class GUI {
     private JProgressBar progressBar;
     private JSlider volumeSlider;
     private Timer progressTimer;
+    private boolean updatingSlider = false;
 
     /**
      * Constructs a new GUI with the specified player controller.
@@ -37,6 +38,8 @@ public class GUI {
 
     /**
      * Loads all songs from the database and sets them in the player.
+     * 
+     * @throws RuntimeException If there's an error accessing the database
      */
     private void loadSongsFromDatabase() {
         SongDAO songDAO = new SongDAO();
@@ -46,6 +49,7 @@ public class GUI {
 
     /**
      * Initializes the GUI components and layout.
+     * Creates the main window and all UI elements.
      */
     private void initialize() {
         loadSongsFromDatabase();
@@ -124,21 +128,19 @@ public class GUI {
         JPanel controlsPanel = new JPanel(new GridLayout(3, 3, 15, 15));
         controlsPanel.setBorder(BorderFactory.createEmptyBorder(20, 50, 20, 50));
 
-        prevButton = new JButton("⏮PrevButton");
+        prevButton = new JButton("⏮");
         playButton = new JButton("▶");
-        nextButton = new JButton("⏭NextButton");
-        repeatButton = new JButton("🔁RepeatButton");
-        volumeDownButton = new JButton("🔉DownVolume");
-        volumeUpButton = new JButton("🔊UpVolume");
+        nextButton = new JButton("⏭");
+        repeatButton = new JButton("🔁");
+        volumeDownButton = new JButton("🔉");
+        volumeUpButton = new JButton("🔊");
 
-        Font buttonFont = new Font("Arial", Font.PLAIN, 16);
-        Dimension buttonSize = new Dimension(120, 40);
-
-        Arrays.asList(prevButton, playButton, nextButton, repeatButton, volumeDownButton, volumeUpButton)
-                .forEach(button -> {
-                    button.setFont(buttonFont);
-                    button.setPreferredSize(buttonSize);
-                });
+        Font emojiFont = new Font("Segoe UI Emoji", Font.PLAIN, 24);
+        JButton[] buttons = { prevButton, playButton, nextButton, repeatButton, volumeDownButton, volumeUpButton };
+        for (JButton btn : buttons) {
+            btn.setFont(emojiFont);
+            btn.setPreferredSize(new Dimension(60, 60)); 
+        }
 
         configureButtons();
 
@@ -146,7 +148,7 @@ public class GUI {
         volumeSlider.setPreferredSize(new Dimension(120, 20));
         volumeSlider.setPaintTrack(true);
         volumeSlider.addChangeListener(e -> {
-            if (!volumeSlider.getValueIsAdjusting()) {
+            if (!volumeSlider.getValueIsAdjusting() && !updatingSlider) {
                 player.setVolume(volumeSlider.getValue() / 100f);
             }
         });
@@ -169,14 +171,18 @@ public class GUI {
         volumeUpButton.addActionListener(e -> {
             volumeUpButton.setEnabled(false);
             player.volumeUp();
+            updatingSlider = true;
             volumeSlider.setValue((int) (player.getCurrentVolume() * 100));
+            updatingSlider = false;
             new Timer(300, evt -> volumeUpButton.setEnabled(true)).start();
         });
 
         volumeDownButton.addActionListener(e -> {
             volumeDownButton.setEnabled(false);
             player.volumeDown();
+            updatingSlider = true;
             volumeSlider.setValue((int) (player.getCurrentVolume() * 100));
+            updatingSlider = false;
             new Timer(300, evt -> volumeDownButton.setEnabled(true)).start();
         });
 
@@ -205,6 +211,7 @@ public class GUI {
 
     /**
      * Configures the action listeners for all control buttons.
+     * Sets up event handlers for play, pause, next, previous, etc.
      */
     private void configureButtons() {
 
@@ -227,22 +234,20 @@ public class GUI {
         });
 
         repeatButton.addActionListener(e -> player.repeat());
-        volumeUpButton.addActionListener(e -> player.volumeUp());
-        volumeDownButton.addActionListener(e -> player.volumeDown());
     }
 
     /**
      * Toggles between play and pause states.
+     * Updates the play button icon accordingly.
      */
     private void togglePlayPause() {
         if (player.isPlaying()) {
             player.pause();
-            playButton.setText("▶ Resart");
+            playButton.setText("↩");
             progressTimer.stop();
         } else if (player.isPaused()) {
-            player.resume();
             player.stop();
-            progressTimer.start();
+            playSelectedSong();
         } else {
             playSelectedSong();
         }
@@ -250,13 +255,14 @@ public class GUI {
 
     /**
      * Plays the currently selected song in the list.
+     * Updates the UI to reflect the currently playing song.
      */
     private void playSelectedSong() {
         int selectedIndex = songList.getSelectedIndex();
         Song selectedSong = createSongFromData(selectedIndex);
 
         player.play(selectedSong);
-        playButton.setText("Stop");
+        playButton.setText("⏹");
         songInfoLabel.setText("Now playing: " + selectedSong.getTitle() + " / " + selectedSong.getArtistName());
 
         progressTimer.start();
@@ -264,6 +270,7 @@ public class GUI {
 
     /**
      * Sets up the timer for updating the progress bar.
+     * The timer updates the playback position every 500ms.
      */
     private void setupProgressTimer() {
         progressTimer = new Timer(500, e -> {
@@ -286,6 +293,7 @@ public class GUI {
      * 
      * @param index The index of the song in the list
      * @return The Song object at the specified index
+     * @throws IndexOutOfBoundsException If the index is invalid
      */
     private Song createSongFromData(int index) {
         return allSongs.get(index);
@@ -293,6 +301,7 @@ public class GUI {
 
     /**
      * Makes the GUI visible.
+     * Should be called after constructing the GUI to display the window.
      */
     public void show() {
         frame.setVisible(true);

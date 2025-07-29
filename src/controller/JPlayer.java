@@ -62,8 +62,10 @@ public class JPlayer {
 
     /**
      * Starts playback of the specified song.
+     * Stops any currently playing song before starting the new one.
      * 
      * @param song The Song object to play
+     * @throws RuntimeException If there's an error starting playback
      */
     public void play(Song song) {
         if (song == null || song.getPath() == null) {
@@ -179,6 +181,7 @@ public class JPlayer {
      * 
      * @param file The audio file to check
      * @return Duration in milliseconds, or 0 if duration cannot be determined
+     * @throws RuntimeException If there's an error reading the file
      */
     public long getDurationFromFile(File file) {
         try {
@@ -195,6 +198,7 @@ public class JPlayer {
 
     /**
      * Pauses the current playback.
+     * Playback can be resumed from the same position.
      */
     public void pause() {
         if (playerMP3 != null && !isStopped.get() && !isPaused.get()) {
@@ -205,6 +209,7 @@ public class JPlayer {
 
     /**
      * Stops the current playback and releases resources.
+     * Playback cannot be resumed from the same position after stopping.
      */
     public void stop() {
         isStopped.set(true);
@@ -237,6 +242,7 @@ public class JPlayer {
 
     /**
      * Increases the volume by 10%.
+     * Volume will not exceed the maximum of 1.0 (100%).
      */
     public void volumeUp() {
         setVolume(Math.round((currentVolume + 0.1f) * 10) / 10.0f);
@@ -244,6 +250,7 @@ public class JPlayer {
 
     /**
      * Decreases the volume by 10%.
+     * Volume will not go below the minimum of 0.0 (0%).
      */
     public void volumeDown() {
         setVolume(Math.round((currentVolume - 0.1f) * 10) / 10.0f);
@@ -260,6 +267,7 @@ public class JPlayer {
 
     /**
      * Closes and releases all playback resources.
+     * @throws RuntimeException If there's an error closing resources
      */
     private void closeResources() {
         try {
@@ -310,78 +318,5 @@ public class JPlayer {
      */
     public List<Song> getSongList() {
         return songList;
-    }
-
-    public void resume() {
-        if (currentSong == null || currentSong.getPath() == null) {
-            System.err.println("No song loaded to resume.");
-            return;
-        }
-
-        if (!isPaused.get()) {
-            System.out.println("Player is not paused.");
-            return;
-        }
-
-        try {
-            File audioFile = new File(currentSong.getPath());
-
-            long resumeMs = getCurrentPosition();
-            long bytesPerMs = estimateBytesPerMillisecond(audioFile);
-            long safeResumeMs = Math.max(0, resumeMs - 1000);
-            long skipBytes = safeResumeMs * bytesPerMs;
-
-            System.out.println("Resuming from ~" + resumeMs + "ms, skipping " + skipBytes + " bytes");
-
-            InputStream fileStream = new FileInputStream(audioFile);
-            currentStream = new BufferedInputStream(fileStream);
-
-            long actuallySkipped = currentStream.skip(skipBytes);
-            if (actuallySkipped < skipBytes) {
-                System.err.println("Skipped less than expected: " + actuallySkipped + " bytes");
-            }
-
-            playerMP3 = new Player(currentStream);
-            isStopped.set(false);
-            isPaused.set(false);
-
-            playbackThread = new Thread(() -> {
-                try {
-                    while (!isStopped.get()) {
-                        if (!isPaused.get()) {
-                            if (playerMP3 == null || !playerMP3.play(1)) {
-                                break;
-                            } else {
-                                framesPlayed++;
-                                if (currentSong != null) {
-                                    currentSong.setCurrentPlayTime(framesPlayed * MS_PER_FRAME / 1000f);
-                                }
-                            }
-                        } else {
-                            Thread.sleep(100);
-                        }
-                    }
-                } catch (Exception e) {
-                    if (!isStopped.get()) {
-                        System.err.println("Error during resume playback: " + e.getMessage());
-                    }
-                } finally {
-                    closeResources();
-                }
-            });
-
-            playbackThread.start();
-        } catch (Exception e) {
-            System.err.println("Failed to resume: " + e.getMessage());
-            closeResources();
-        }
-    }
-
-    private long estimateBytesPerMillisecond(File file) throws IOException {
-        long fileSize = file.length();
-        long duration = getDurationFromFile(file);
-        if (duration == 0)
-            return 0;
-        return fileSize / duration;
     }
 }
