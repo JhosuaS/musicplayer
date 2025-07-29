@@ -13,50 +13,52 @@ public class GUIController implements GamepadListener {
         this.gamepadManager.start();
     }
 
-@Override
-public void onCrossUp(){
-    gui.scrollListaArriba();
-}
-@Override
-public void onCrossDown(){
-    gui.scrollListaAbajo();
-}
+    @Override
+    public void onCrossUp(){
+        gui.scrollUp();
+    }
+    @Override
+    public void onCrossDown(){
+        gui.scrollDown();
+    }
 
     @Override
     public void onVolDown() {
-        gui.BajarVolumen();
+        gui.volumeDownButton();
     }
 
     @Override
     public void onVolUp() {
-        gui.SubirVolumen();
+        gui.volumeUpButton();
     }
 
     @Override
     public void onPreviousPag() {
-        gui.BackMenus();
+        gui.backButton();
     }
-@Override
-public void onSelect(){
-    gui.playSelectedSongExternamente();
-}
+    @Override
+    public void onSelect(){
+        gui.playSelectedSongGamepad();
+    }
     
     @Override
     public void onStop() {
-        gui.PlayPause();
+        gui.stopButton();
     }
 
     @Override
     public void onNext() {
-        gui.NextMusic();
+        gui.nextMusic();
     }
 
     @Override
     public void onPrevious() {
-        gui.PrevMusic();
+        gui.prevMusic();
     }
 
     public void shutdown() {
         gamepadManager.stop();
     }
 }
+
+
