@@ -9,22 +9,41 @@ public class GamepadManager implements Runnable {
     private boolean running = false;
     private GamepadListener listener;
 
+    /**
+     * Constructs a new GamepadManager with the specified listener.
+     * Initializes the SDL gamepad system.
+     * 
+     * @param listener The GamepadListener to receive controller events
+     */
     public GamepadManager(GamepadListener listener) {
         this.listener = listener;
         controllerManager = new ControllerManager();
         controllerManager.initSDLGamepad();
     }
 
+    /**
+     * Starts the gamepad monitoring thread.
+     * The thread will begin polling controller state until stopped.
+     */
     public void start() {
         running = true;
         new Thread(this).start();
     }
 
+    /**
+     * Stops the gamepad monitoring thread.
+     * Shuts down the SDL gamepad system.
+     */
     public void stop() {
         running = false;
         controllerManager.quitSDLGamepad();
     }
 
+    /**
+     * Main gamepad polling loop.
+     * Continuously checks controller state and triggers appropriate listener callbacks.
+     * Runs at approximately 10Hz (100ms sleep between polls).
+     */
     @Override
     public void run() {
         while (running) {
