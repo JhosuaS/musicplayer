@@ -306,8 +306,14 @@ public class GUI {
         frame.setVisible(true);
     }
 
-    // Desplaza la selección hacia arriba en la lista de canciones
-    public void scrollUp() {
+    /**
+     * Gamepad control methods
+     */
+    /**
+     * Scrolls the song list up to the previous song.
+     * If the first song is selected, it does nothing.   
+     */
+        public void scrollUp() {
         int index = songList.getSelectedIndex();
         if (index > 0) {
             songList.setSelectedIndex(index - 1);
@@ -315,7 +321,10 @@ public class GUI {
         }
     }
 
-    // Desplaza la selección hacia abajo en la lista de canciones
+    /**
+     * Scrolls the song list down to the next song.
+     * If the last song is selected, it does nothing.
+     */
     public void scrollDown() {
         int index = songList.getSelectedIndex();
         if (index < songList.getModel().getSize() - 1) {
@@ -324,40 +333,54 @@ public class GUI {
         }
     }
 
+    /**
+     * Plays the currently selected song, calls the player view
+     */
     public void playSelectedSongGamepad() {
         playSelectedSong();
         cardLayout.show(cardPanel, "player");
         
     }
 
-    // Simula presionar el botón de bajar volumen
+    /**
+     * Simules the volumeDownButton with LT
+     */
     public void volumeDownButton() {
         volumeDownButton.doClick();
     }
 
-    // Simula presionar el botón de subir volumen
+    /**
+     * Simules the volumeUpButton with RT
+     */
     public void volumeUpButton() {
         volumeUpButton.doClick();
     }
 
-    // Simula presionar el botón de volver
+    /**
+     * Returns to the main view from the player view with y
+     */
     public void backButton() {
         cardLayout.show(cardPanel, "main");
     }
 
-    // Detiene la reproducción
+    /**
+     * Stops the music with a
+     */
     public void stopButton() {
         player.stop();
-        playButton.setText("▶");
         progressTimer.stop();
     }
 
-    // Siguiente canción
+    /**
+     * Plays the next song in the list with dpad right
+     */
     public void nextMusic() {
         nextButton.doClick();
     }
 
-    // Canción anterior
+    /**
+     * Plays the previous song in the list with dpad left
+     */
     public void prevMusic() {
         prevButton.doClick();
     }
