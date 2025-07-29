@@ -3,7 +3,6 @@ package ui;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.Arrays;
 import model.*;
 
 import java.util.List;
@@ -307,4 +306,59 @@ public class GUI {
         frame.setVisible(true);
     }
 
+    // Desplaza la selección hacia arriba en la lista de canciones
+    public void scrollUp() {
+        int index = songList.getSelectedIndex();
+        if (index > 0) {
+            songList.setSelectedIndex(index - 1);
+            songList.ensureIndexIsVisible(index - 1);
+        }
+    }
+
+    // Desplaza la selección hacia abajo en la lista de canciones
+    public void scrollDown() {
+        int index = songList.getSelectedIndex();
+        if (index < songList.getModel().getSize() - 1) {
+            songList.setSelectedIndex(index + 1);
+            songList.ensureIndexIsVisible(index + 1);
+        }
+    }
+
+    public void playSelectedSongGamepad() {
+        playSelectedSong();
+        cardLayout.show(cardPanel, "player");
+        
+    }
+
+    // Simula presionar el botón de bajar volumen
+    public void volumeDownButton() {
+        volumeDownButton.doClick();
+    }
+
+    // Simula presionar el botón de subir volumen
+    public void volumeUpButton() {
+        volumeUpButton.doClick();
+    }
+
+    // Simula presionar el botón de volver
+    public void backButton() {
+        cardLayout.show(cardPanel, "main");
+    }
+
+    // Detiene la reproducción
+    public void stopButton() {
+        player.stop();
+        playButton.setText("▶");
+        progressTimer.stop();
+    }
+
+    // Siguiente canción
+    public void nextMusic() {
+        nextButton.doClick();
+    }
+
+    // Canción anterior
+    public void prevMusic() {
+        prevButton.doClick();
+    }
 }
