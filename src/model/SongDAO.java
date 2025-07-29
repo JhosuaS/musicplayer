@@ -1,6 +1,5 @@
-package data;
+package model;
 
-import model.Song;
 import java.sql.*;
 import java.util.*;
 
