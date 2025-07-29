@@ -7,7 +7,6 @@ import model.*;
 
 import java.util.List;
 import controller.JPlayer;
-import data.SongDAO;
 
 public class GUI {
     private JPlayer player;
@@ -397,5 +396,5 @@ public void PrevM(){
     }
 }
 
-}
+
 
